@@ -1,0 +1,6 @@
+Currency: ₱
+Ticket Cost: 20
+Tickets Per Second: 1000
+Maximum Entry Number: 49
+Entries: 2, 4, 6, 40, 46, 48
+Payouts: 0, 0, 50, 1200, 50000, 15840000

@@ -1,0 +1,7 @@
+# Build files
+lottery_sim
+*.o
+
+# Vim generated files
+*.vim
+*.swp
