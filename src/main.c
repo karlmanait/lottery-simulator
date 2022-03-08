@@ -16,7 +16,7 @@ void init_sim_data(struct sim_data *p_data)
 {
         p_data->tickets_bought = 0;
         for (int i = 0; i < LOTTERY_NUMBERS; ++i) {
-                p_data->win_count[i] = 0;
+                p_data->wincount[i] = 0;
                 p_data->drawn_numbers[i] = 0;
         }
 }
@@ -40,9 +40,8 @@ void count_match(struct config *p_conf, struct sim_data *p_data)
                         }
                 }
         }
-        if (match) {
-                p_data->win_count[--match]++;
-        }
+        if (match)
+                p_data->wincount[--match]++;
 }
 
 void *thread_get_input(void *arg)
@@ -84,6 +83,7 @@ int main()
         WINDOW *conf_window = NULL;
         WINDOW *entry_window = NULL;
         WINDOW *earn_window = NULL;
+        WINDOW *wincount_window = NULL;
 
         if (display_config(conf_window, conf_string)) {
                 fprintf(stderr, "Configuration display error\n");
@@ -104,8 +104,13 @@ int main()
                         fprintf(stderr, "Earnings display error\n");
                         return 1;
                 }
-                refresh();
 
+                if (display_wincount(wincount_window, &conf, &data)) {
+                        fprintf(stderr, "Win Count display error\n");
+                        return 1;
+                }
+
+                refresh();
                 nanosleep(&ts_sleep, NULL);
         }
         mvprintw(LINES - 1, 0, "Press any key to continue ...");

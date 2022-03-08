@@ -17,6 +17,6 @@ struct config {
 struct sim_data {
         uint32_t tickets_bought;
         uint8_t drawn_numbers[LOTTERY_NUMBERS];
-        uint32_t win_count[LOTTERY_NUMBERS];
+        uint32_t wincount[LOTTERY_NUMBERS];
 };
 
