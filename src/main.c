@@ -11,6 +11,7 @@
 #include "config.h"
 #include "display.h"
 
+#define UI_UPDATE_PER_SEC 120
 
 void init_sim_data(struct sim_data *p_data)
 {
@@ -71,8 +72,10 @@ int main()
         struct sim_data data;
         init_sim_data(&data);
 
-        struct timespec ts_sleep;
+        uint32_t frame_ctr_ns = 0;
+        uint32_t frame_threshold_ns = (1e9 / UI_UPDATE_PER_SEC);
         bool min_tickets_per_sec = conf.tickets_per_sec <= 1;
+        struct timespec ts_sleep;
         ts_sleep.tv_sec = min_tickets_per_sec ? 1.0 : 0;
         ts_sleep.tv_nsec = min_tickets_per_sec ? 0 : 1e9 / conf.tickets_per_sec;
 
@@ -95,22 +98,25 @@ int main()
                 draw_numbers(&data, conf.max_number);
                 count_match(&conf, &data);
 
-                if (display_entry(entry_window, &conf, &data)) {
-                        fprintf(stderr, "Entries display error\n");
-                        return 1;
-                }
+                if (frame_ctr_ns >= frame_threshold_ns) {
+                        if (display_entry(entry_window, &conf, &data)) {
+                                fprintf(stderr, "Entries display error\n");
+                                return 1;
+                        }
+                        if (display_earnings(earn_window, &conf, &data)) {
+                                fprintf(stderr, "Earnings display error\n");
+                                return 1;
+                        }
+                        if (display_wincount(wincount_window, &conf, &data)) {
+                                fprintf(stderr, "Win Count display error\n");
+                                return 1;
+                        }
 
-                if (display_earnings(earn_window, &conf, &data)) {
-                        fprintf(stderr, "Earnings display error\n");
-                        return 1;
-                }
-
-                if (display_wincount(wincount_window, &conf, &data)) {
-                        fprintf(stderr, "Win Count display error\n");
-                        return 1;
+                        frame_ctr_ns -= frame_threshold_ns;
                 }
 
                 refresh();
+                frame_ctr_ns += ts_sleep.tv_nsec;
                 nanosleep(&ts_sleep, NULL);
         }
         mvprintw(LINES - 1, 0, "Press any key to continue ...");
